@@ -39,8 +39,18 @@ export const IMG_OFFICE = "https://images.unsplash.com/photo-1497215728101-856f4
 export const IMG_DESK = "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1600&q=80";
 export const THUMB_OFFICE = "https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=480&q=80";
 export const THUMB_DESK = "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=480&q=80";
-// Cycled across ranked cards (by index) until per-business imagery exists.
-export const DIRECTORY_THUMBS = [THUMB_OFFICE, THUMB_DESK];
+// Neutral office/desk/finance stock pool for ranked cards, chosen deterministically per business
+// (stable name hash) so each business always shows the same photo and neighbours vary.
+export const DIRECTORY_THUMBS = [
+  THUMB_DESK,
+  THUMB_OFFICE,
+  "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=480&q=80",
+  "https://images.unsplash.com/photo-1521791136064-7986c2920216?w=480&q=80",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=480&q=80",
+  "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=480&q=80",
+  "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=480&q=80",
+  "https://images.unsplash.com/photo-1573497491208-6b1acb260507?w=480&q=80",
+];
 
 /** Pick a hero background for a niche. Only PROVEN-LIVE image IDs are used (office default,
  *  desk/documents for finance-type niches). Add per-niche entries here as new IDs are confirmed. */
@@ -158,7 +168,7 @@ export function renderRankedCard(b: DirectoryBiz, index: number, niche: string):
   const rank = index + 1;
   const name = (b.name || "").trim();
   const href = `/directory/${encodeURIComponent(niche)}/${slugify(name)}`;
-  const thumb = DIRECTORY_THUMBS[index % DIRECTORY_THUMBS.length];
+  const thumb = DIRECTORY_THUMBS[[...name].reduce((a, c) => a + c.charCodeAt(0), 0) % DIRECTORY_THUMBS.length];
   const badge = b.is_client ? `<span class="featured">Featured</span>` : "";
   const rating = ratingHtml(b.rating, b.review_count);
   const metaBits: string[] = [];
