@@ -1,0 +1,9 @@
+# Copy to `.dev.vars` for local `wrangler pages dev`. In production, set these in the
+# Cloudflare Pages project → Settings → Environment variables (NOT committed).
+# The anon key is a PUBLIC key (read-only via RLS) — safe to keep here.
+
+SUPABASE_URL=https://ruusxpkkmwtljxxulhbq.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1dXN4cGtrbXd0bGp4eHVsaGJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExODgzMzUsImV4cCI6MjA5Njc2NDMzNX0.4PoMZXJS0RDEHyK6wa9k0Q8F0fo2u1e7PMVegJ6nNbw
+
+# Where the /r/ audit-report pages are served (LeadFinderOS). Directory business pages link here.
+REPORTS_ORIGIN=https://yoursites.uk
