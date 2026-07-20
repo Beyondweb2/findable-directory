@@ -7,7 +7,7 @@
 
 import {
   renderDirectoryPage, renderBreadcrumbs, escHtml, slugify, nicheLabel, nicheHeroImage, areaLabel,
-  renderRankedCard, anonHeaders, HERO_WAVE, DIRECTORY_NAME, type DirectoryBiz, type Env,
+  renderRankedCard, renderFeaturedClient, anonHeaders, reportsOrigin, HERO_WAVE, DIRECTORY_NAME, type DirectoryBiz, type Env,
 } from "./_shared";
 
 export const onRequestGet = async (context: { request: Request; params: Record<string, string>; env: Env }) => {
@@ -25,7 +25,7 @@ export const onRequestGet = async (context: { request: Request; params: Record<s
   try {
     const apiUrl = `${env.SUPABASE_URL}/rest/v1/directory_businesses` +
       `?niche=eq.${encodeURIComponent(niche)}` +
-      `&select=name,website,phone,address,city,postal_code,category,rating,review_count,is_client,lead_id,area` +
+      `&select=name,website,phone,address,city,postal_code,category,rating,review_count,is_client,lead_id,area,description` +
       `&order=is_client.desc,rating.desc.nullslast,review_count.desc.nullslast`;
     const r = await fetch(apiUrl, { headers: anonHeaders(env) });
     if (r.ok) {
@@ -38,13 +38,14 @@ export const onRequestGet = async (context: { request: Request; params: Record<s
 
   const businesses = rows.filter((b) => (b.name || "").trim());
   if (businesses.length === 0) return categoryNotFound(origin, niche);
+  const shown = businesses.slice(0, 10); // top 10 — rendered as cards AND reflected in the ItemList schema
 
   // Distinct areas for this niche → the "Browse by area" links (local-intent pages at
   // /directory/<niche>/<area>). Sorted alphabetically; "uk" (national) kept but shown as "UK".
   const areas = [...new Set(businesses.map((b) => (b.area || "").trim().toLowerCase()).filter(Boolean))]
     .sort((a, b) => a.localeCompare(b));
 
-  const title = `${label} in the UK — ${DIRECTORY_NAME}`;
+  const title = `Best ${label} — ${DIRECTORY_NAME}`;
   const metaDescription =
     `Compare ${label.toLowerCase()} in the UK — ratings, reviews and services, side by side. ` +
     `Find a trusted firm and check their credentials before you get in touch.`;
@@ -55,8 +56,8 @@ export const onRequestGet = async (context: { request: Request; params: Record<s
     "@type": "ItemList",
     name: `${label} in the UK`,
     url: canonical,
-    numberOfItems: businesses.length,
-    itemListElement: businesses.map((b, i) => ({
+    numberOfItems: shown.length,
+    itemListElement: shown.map((b, i) => ({
       "@type": "ListItem",
       position: i + 1,
       item: {
@@ -79,15 +80,17 @@ export const onRequestGet = async (context: { request: Request; params: Record<s
   const hero =
 `<section class="hero hero--img" style="background-image:url('${nicheHeroImage(niche)}')">
 <div class="container">
-<h1>Best ${escHtml(label)} in the UK</h1>
-<p>Compare ${escHtml(label.toLowerCase())} across the country — check ratings, reviews and credentials, then choose the firm that fits. Featured clients are marked, and listed honestly among the rest.</p>
+<h1>Best ${escHtml(label)}</h1>
+<p>Compare top-rated ${escHtml(label.toLowerCase())} by rating, reviews and credentials. Currently covering Peterborough, with more areas coming.</p>
 </div>
 ${HERO_WAVE}
 </section>`;
 
   // RANKED, NUMBERED cards via the shared helper (same markup as the area page). Query order =
   // clients first, then rating, then reviews, so the rank number reflects the honest "best of" order.
-  const cards = businesses.map((b, i) => renderRankedCard(b, i, niche)).join("\n");
+  // Featured client block for the accountant niche.
+  const cards = shown.map((b, i) => renderRankedCard(b, i, niche)).join("\n");
+  const featured = niche === "accountant" ? renderFeaturedClient(reportsOrigin(env)) : "";
 
   // "Browse by area" — local-intent links into /directory/<niche>/<area>. Only when areas exist.
   const areaSection = areas.length
@@ -109,9 +112,10 @@ ${areas.map((a) => `<a href="/directory/${encodeURIComponent(niche)}/${encodeURI
 <div class="container">
 ${crumbs}
 <div class="section-head" style="margin-top:14px">
-<h2>${businesses.length} best ${escHtml(label.toLowerCase())}, ranked</h2>
+<h2>Top ${shown.length} ${escHtml(label.toLowerCase())}, ranked</h2>
 <p class="sub">Ranked by rating and reviews. Featured clients appear near the top but are listed alongside everyone else — the ranking is honest.</p>
 </div>
+${featured}
 <div class="rank-list">
 ${cards}
 </div>
