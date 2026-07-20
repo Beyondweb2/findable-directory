@@ -9,7 +9,7 @@
 
 import {
   renderDirectoryPage, renderBreadcrumbs, escHtml, slugify, nicheLabel, nicheHeroImage, areaLabel,
-  renderRankedCard, ratingHtml, describeBusiness, anonHeaders, reportsOrigin, HERO_WAVE,
+  renderRankedCard, renderFeaturedClient, ratingHtml, describeBusiness, anonHeaders, reportsOrigin, HERO_WAVE,
   IMG_OFFICE, IMG_DESK, DIRECTORY_NAME, type DirectoryBiz, type Env,
 } from "../_shared";
 
@@ -49,7 +49,8 @@ export const onRequestGet = async (context: { request: Request; params: Record<s
   const areaSet = new Set(rows.map((b) => (b.area || "").trim().toLowerCase()).filter(Boolean));
   if (areaSet.has(segment)) {
     const inArea = rows.filter((b) => (b.area || "").trim().toLowerCase() === segment && (b.name || "").trim());
-    return renderAreaPage(origin, niche, segment, inArea);
+    const featured = (niche === "accountant" && segment === "peterborough") ? renderFeaturedClient(reportsOrigin(env)) : "";
+    return renderAreaPage(origin, niche, segment, inArea, featured);
   }
 
   const match = rows.find((b) => slugify(b.name || "") === segment) ?? null;
@@ -166,11 +167,12 @@ ${reportCta ? `<div class="biz-report">${reportCta}<p class="note">This business
 /** AREA page — "<Niche>s in <Area>" — ranked businesses in this niche+area (local intent). Same
  *  ranked-card style as the category page; each card links to the business profile. `businesses` is
  *  already ordered (clients first, then rating, then reviews) and pre-filtered to the area. */
-function renderAreaPage(origin: string, niche: string, area: string, businesses: DirectoryBiz[]): Response {
+function renderAreaPage(origin: string, niche: string, area: string, businesses: DirectoryBiz[], featuredHtml: string): Response {
   const label = nicheLabel(niche);
   const areaLbl = areaLabel(area);
   const canonical = `${origin}/directory/${encodeURIComponent(niche)}/${encodeURIComponent(area)}`;
   const heading = `${label} in ${areaLbl}`;
+  const shown = businesses.slice(0, 10); // top 10 — rendered as cards AND reflected in the ItemList schema
 
   const title = `${heading} — ${DIRECTORY_NAME}`;
   const metaDescription =
@@ -182,8 +184,8 @@ function renderAreaPage(origin: string, niche: string, area: string, businesses:
     "@type": "ItemList",
     name: heading,
     url: canonical,
-    numberOfItems: businesses.length,
-    itemListElement: businesses.map((b, i) => ({
+    numberOfItems: shown.length,
+    itemListElement: shown.map((b, i) => ({
       "@type": "ListItem",
       position: i + 1,
       item: {
@@ -216,15 +218,16 @@ function renderAreaPage(origin: string, niche: string, area: string, businesses:
 ${HERO_WAVE}
 </section>`;
 
-  const cards = businesses.map((b, i) => renderRankedCard(b, i, niche)).join("\n");
+  const cards = shown.map((b, i) => renderRankedCard(b, i, niche)).join("\n");
   const listSection =
 `<section class="section">
 <div class="container">
 ${crumbs}
 <div class="section-head" style="margin-top:14px">
-<h2>${businesses.length} best ${escHtml(label.toLowerCase())} in ${escHtml(areaLbl)}, ranked</h2>
+<h2>Top ${shown.length} ${escHtml(label.toLowerCase())} in ${escHtml(areaLbl)}, ranked</h2>
 <p class="sub">Ranked by rating and reviews. <a href="/directory/${encodeURIComponent(niche)}">Back to all ${escHtml(label.toLowerCase())}</a>.</p>
 </div>
+${featuredHtml}
 <div class="rank-list">
 ${cards}
 </div>

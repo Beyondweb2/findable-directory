@@ -42,14 +42,18 @@ export const THUMB_DESK = "https://images.unsplash.com/photo-1450101499163-c8848
 // Neutral office/desk/finance stock pool for ranked cards, chosen deterministically per business
 // (stable name hash) so each business always shows the same photo and neighbours vary.
 export const DIRECTORY_THUMBS = [
-  THUMB_DESK,
-  THUMB_OFFICE,
-  "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=480&q=80",
-  "https://images.unsplash.com/photo-1521791136064-7986c2920216?w=480&q=80",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=480&q=80",
-  "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=480&q=80",
-  "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=480&q=80",
-  "https://images.unsplash.com/photo-1573497491208-6b1acb260507?w=480&q=80",
+  "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1200&q=80",
+  "https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=1200&q=80",
+  "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&q=80",
+  "https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1200&q=80",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80",
+  "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1200&q=80",
+  "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80",
+  "https://images.unsplash.com/photo-1573497491208-6b1acb260507?w=1200&q=80",
+  "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=80",
+  "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=80",
+  "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1200&q=80",
+  "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1200&q=80",
 ];
 
 /** Pick a hero background for a niche. Only PROVEN-LIVE image IDs are used (office default,
@@ -116,9 +120,9 @@ export function renderBreadcrumbs(items: BreadcrumbItem[]): string {
   return `<nav class="crumbs" aria-label="Breadcrumb">${parts.join('<span class="crumb-sep">/</span>')}</nav>`;
 }
 
-// Findable signature wave — sits at the bottom of a hero band, blending into the --page tint below.
-export const HERO_WAVE =
-`<svg class="wave" viewBox="0 0 1200 38" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M0,14 C220,42 420,-4 640,15 C860,34 1010,4 1200,19 L1200,38 L0,38 Z" fill="#eef1f6"/></svg>`;
+// Hero bottom edge is straight now (wave removed). Kept as an empty export so callers that still
+// interpolate ${HERO_WAVE} compile unchanged.
+export const HERO_WAVE = "";
 
 // One directory_businesses row (all fields the pages read). Shared so category / area / business
 // pages agree on shape and reuse the same card + rating + description helpers.
@@ -168,7 +172,7 @@ export function renderRankedCard(b: DirectoryBiz, index: number, niche: string):
   const rank = index + 1;
   const name = (b.name || "").trim();
   const href = `/directory/${encodeURIComponent(niche)}/${slugify(name)}`;
-  const thumb = DIRECTORY_THUMBS[[...name].reduce((a, c) => a + c.charCodeAt(0), 0) % DIRECTORY_THUMBS.length];
+  const img = DIRECTORY_THUMBS[index % DIRECTORY_THUMBS.length];
   const badge = b.is_client ? `<span class="featured">Featured</span>` : "";
   const rating = ratingHtml(b.rating, b.review_count);
   const metaBits: string[] = [];
@@ -176,20 +180,34 @@ export function renderRankedCard(b: DirectoryBiz, index: number, niche: string):
   if ((b.category || "").trim()) metaBits.push(escHtml((b.category as string).trim()));
   if ((b.city || "").trim()) metaBits.push(escHtml((b.city as string).trim()));
   const meta = metaBits.join('<span class="dot">&middot;</span>');
-  const desc = describeBusiness(b, niche);
+  const desc = ((b as any).description || "").trim() || describeBusiness(b, niche);
   const website = (b.website || "").trim();
   const websiteLink = website
     ? `<a href="${escHtml(website)}" target="_blank" rel="nofollow noopener">Visit website &#8599;</a>` : "";
   return (
 `<article class="rank">
-<div class="rank-num" aria-label="Rank ${rank}">${rank}</div>
-<div class="rank-img"><img src="${escHtml(thumb)}" alt="" loading="lazy" width="130" height="98"></div>
+<div class="rank-media"><img src="${escHtml(img)}" alt="" loading="lazy" width="1200" height="480"><span class="rank-badge" aria-label="Rank ${rank}">${rank}</span></div>
 <div class="rank-body">
 <div class="rank-head"><h3 class="rank-name"><a href="${escHtml(href)}">${escHtml(name)}</a></h3>${badge}</div>
 ${meta ? `<div class="rank-meta">${meta}</div>\n` : ""}<p class="rank-desc">${escHtml(desc)}</p>
 <div class="rank-links"><a href="${escHtml(href)}">View profile &rarr;</a>${websiteLink}</div>
 </div>
 </article>`
+  );
+}
+
+export function renderFeaturedClient(reportsOriginUrl: string): string {
+  const url = `${reportsOriginUrl}/r/ablm-associates-5`;
+  return (
+`<section class="feat-client" aria-label="Featured firm">
+<div class="feat-media"><img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1200&q=80" alt="ABLM Associates" loading="lazy" width="1200" height="600"><span class="feat-tag">Featured</span></div>
+<div class="feat-body">
+<h2 class="feat-name">ABLM Associates</h2>
+<p class="feat-cred">UK-wide chartered certified accountants &middot; ACCA regulated &middot; Peterborough</p>
+<p class="feat-desc">ABLM Associates is a UK-wide firm of chartered certified accountants based in Peterborough, working with limited companies, small businesses and individuals on accounts, corporation tax, VAT, payroll and planning.</p>
+<a class="feat-cta" href="${escHtml(url)}" target="_blank" rel="noopener">View full profile &rarr;</a>
+</div>
+</section>`
   );
 }
 
@@ -228,9 +246,8 @@ img{max-width:100%;display:block}
 .hero h1 .y{color:var(--yellow)}
 .hero p{font-size:clamp(16px,2.1vw,19px);color:#c7d5ee;max-width:62ch;margin:0 auto}
 /* hero with a background image — page sets background-image inline; navy overlay keeps text legible + wave blends into the page */
-.hero.hero--img{position:relative;background-color:var(--blue);background-size:cover;background-position:center;isolation:isolate;padding-bottom:64px}
+.hero.hero--img{position:relative;background-color:var(--blue);background-size:cover;background-position:center;isolation:isolate;padding-bottom:56px}
 .hero.hero--img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,32,66,.72),rgba(16,32,66,.86));z-index:-1}
-.hero .wave{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:38px;display:block}
 /* main + sections */
 main{display:block;padding-bottom:56px}
 .section{padding:44px 0}
@@ -244,26 +261,36 @@ main{display:block;padding-bottom:56px}
 .card .count{font-size:13px;color:var(--muted)}
 .card .arrow{color:var(--blue);font-size:13px;font-weight:700;margin-top:12px;display:inline-block}
 /* ranked business list (category page) — "best of", numbered, with imagery */
-.rank-list{display:flex;flex-direction:column;gap:16px}
-.rank{display:flex;gap:18px;align-items:stretch;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 1px 2px rgba(15,23,42,.04);transition:box-shadow .15s,border-color .15s,transform .15s}
-.rank:hover{border-color:#cdd8ea;box-shadow:0 8px 30px rgba(26,61,124,.10);transform:translateY(-1px)}
-.rank-num{flex:0 0 auto;align-self:center;width:40px;text-align:center;font-size:30px;font-weight:900;letter-spacing:-.03em;color:var(--blue);line-height:1}
-.rank-img{flex:0 0 auto;width:130px;height:98px;border-radius:10px;overflow:hidden;background:var(--page)}
-.rank-img img{width:100%;height:100%;object-fit:cover}
-.rank-body{flex:1;min-width:0}
-.rank-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.rank-name{font-weight:800;font-size:19px;letter-spacing:-.01em;color:var(--ink);margin:0}
+.rank-list{display:flex;flex-direction:column;gap:28px}
+.rank{background:var(--paper);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.04);transition:box-shadow .15s,border-color .15s,transform .15s}
+.rank:hover{border-color:#cdd8ea;box-shadow:0 12px 40px rgba(26,61,124,.12);transform:translateY(-2px)}
+.rank-media{position:relative;width:100%;height:300px;background:var(--page)}
+.rank-media img{width:100%;height:100%;object-fit:cover;display:block}
+.rank-badge{position:absolute;top:16px;left:16px;width:46px;height:46px;border-radius:50%;background:var(--blue);color:#fff;font-weight:900;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(16,32,66,.35)}
+.rank-body{padding:22px 26px 26px}
+.rank-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.rank-name{font-weight:800;font-size:clamp(22px,3vw,28px);letter-spacing:-.01em;color:var(--ink);margin:0}
 .rank-name a{color:var(--ink)}
 .rank-name a:hover{color:var(--blue);text-decoration:none}
-.featured{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#6b5200;background:var(--yellow);border-radius:999px;padding:2px 10px}
-.rank-meta{font-size:14px;color:var(--muted);margin:5px 0 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.featured{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#6b5200;background:var(--yellow);border-radius:999px;padding:3px 11px}
+.rank-meta{font-size:16px;color:var(--muted);margin:12px 0 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .rank-meta .dot{color:#cbd3e0}
-.rating{color:var(--ink);font-weight:700;white-space:nowrap}
-.rating .stars{color:#f2b90c;margin-right:3px}
+.rating{color:var(--ink);font-weight:800;white-space:nowrap;font-size:17px}
+.rating .stars{color:#f2b90c;margin-right:4px}
 .rating .rc{color:var(--muted);font-weight:400}
-.rank-desc{font-size:14.5px;color:var(--body);margin:8px 0 0;line-height:1.5}
-.rank-links{margin-top:10px;display:flex;gap:16px;font-size:14px;font-weight:700}
+.rank-desc{font-size:16px;color:var(--body);margin:14px 0 0;line-height:1.6;max-width:72ch}
+.rank-links{margin-top:18px;display:flex;gap:20px;font-size:15px;font-weight:700}
 .rank-links a{color:var(--blue)}
+.feat-client{background:var(--paper);border:1px solid #cfe0fb;border-top:4px solid var(--yellow);border-radius:16px;overflow:hidden;margin:0 0 30px;box-shadow:0 8px 30px rgba(26,61,124,.10)}
+.feat-media{position:relative;width:100%;height:300px;background:var(--page)}
+.feat-media img{width:100%;height:100%;object-fit:cover;display:block}
+.feat-tag{position:absolute;top:16px;left:16px;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#6b5200;background:var(--yellow);border-radius:999px;padding:5px 14px}
+.feat-body{padding:24px 28px 28px}
+.feat-name{font-weight:900;font-size:clamp(24px,3.4vw,32px);letter-spacing:-.02em;color:var(--ink);margin:0}
+.feat-cred{font-size:15px;font-weight:700;color:var(--blue);margin:8px 0 0}
+.feat-desc{font-size:16px;color:var(--body);line-height:1.6;margin:14px 0 0;max-width:72ch}
+.feat-cta{display:inline-block;margin-top:18px;font-size:15px;font-weight:800;color:var(--blue)}
+@media(max-width:560px){.feat-media{height:200px}.feat-body{padding:20px 18px 22px}}
 /* business profile page */
 .biz-hero-head{min-height:22px;margin-bottom:6px}
 .biz-hero-meta{color:#dbe4f4;font-weight:600;margin:12px 0 0}
@@ -297,7 +324,7 @@ main{display:block;padding-bottom:56px}
 .site-footer .foot-nav a{color:var(--yellow)}
 .site-footer .note{margin-top:10px;color:#8fa4c8;font-size:12px}
 @media(max-width:640px){.hero{padding:40px 0 44px}.section{padding:32px 0}.site-header .container{height:56px}.nav{gap:16px}}
-@media(max-width:560px){.rank{flex-wrap:wrap;gap:12px}.rank-num{align-self:flex-start;width:auto}.rank-img{width:100%;height:150px;order:3;flex-basis:100%}.rank-body{flex-basis:100%}}`;
+@media(max-width:560px){.rank-media{height:200px}.rank-body{padding:18px 18px 22px}.rank-badge{width:40px;height:40px;font-size:19px}}`;
 
 /** The consistent shell. Every directory page passes head metadata + body HTML through here so
  *  header / nav / footer / styling stay identical — and SEO tags are always emitted (enforced). */
