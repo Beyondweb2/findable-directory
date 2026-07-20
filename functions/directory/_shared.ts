@@ -226,7 +226,7 @@ const STYLE =
 `:root{--blue:#1a3d7c;--blue-2:#2a5aa8;--yellow:#ffd23f;--ink:#0f172a;--body:#48505c;--muted:#5b6472;--faint:#9aa3b2;--line:#e9edf3;--page:#eef1f6;--paper:#fff;--foot:#102a58;--amber:#c2820b;--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--page);color:var(--body);font-family:var(--font);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+body{margin:0;background:var(--page);color:var(--body);font-family:var(--font);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
 a{color:var(--blue);text-decoration:none}
 a:hover{text-decoration:underline}
 img{max-width:100%;display:block}
@@ -249,7 +249,7 @@ img{max-width:100%;display:block}
 .hero.hero--img{position:relative;background-color:var(--blue);background-size:cover;background-position:center;isolation:isolate;padding-bottom:56px}
 .hero.hero--img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,32,66,.72),rgba(16,32,66,.86));z-index:-1}
 /* main + sections */
-main{display:block;padding-bottom:56px}
+main{display:block;padding-bottom:56px;flex:1 0 auto}
 .section{padding:44px 0}
 .section-head h2{font-weight:800;font-size:clamp(21px,2.8vw,27px);letter-spacing:-.01em;color:var(--ink);margin:0 0 6px}
 .section-head .sub{color:var(--muted);margin:0 0 24px}
@@ -260,6 +260,9 @@ main{display:block;padding-bottom:56px}
 .card h3{font-weight:800;font-size:19px;letter-spacing:-.01em;color:var(--ink);margin:0 0 4px;text-transform:capitalize}
 .card .count{font-size:13px;color:var(--muted)}
 .card .arrow{color:var(--blue);font-size:13px;font-weight:700;margin-top:12px;display:inline-block}
+.info{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:22px}
+.info h3{font-weight:800;font-size:17px;letter-spacing:-.01em;color:var(--ink);margin:0 0 8px}
+.info p{font-size:14.5px;color:var(--body);line-height:1.55;margin:0}
 /* ranked business list (category page) — "best of", numbered, with imagery */
 .rank-list{display:flex;flex-direction:column;gap:28px}
 .rank{background:var(--paper);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.04);transition:box-shadow .15s,border-color .15s,transform .15s}

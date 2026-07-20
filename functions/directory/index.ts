@@ -106,7 +106,22 @@ ${cards}
 </section>`;
   }
 
-  const bodyHtml = `${hero}\n${categoriesSection}`;
+  const howSection =
+`<section class="section"><div class="container">
+<div class="section-head"><h2>How Findable works</h2><p class="sub">A directory built to be read - by people and by AI search.</p></div>
+<div class="grid">
+<div class="info"><h3>Ranked by real reviews</h3><p>Firms are ordered by genuine ratings and review counts, never by who paid. Featured clients are marked and listed honestly alongside everyone else.</p></div>
+<div class="info"><h3>Checked and structured</h3><p>Every listing's name, location and services are marked up so search engines and AI assistants can read exactly who each firm is.</p></div>
+<div class="info"><h3>Built to be found by AI</h3><p>When someone asks chatgpt or gemini for a trusted local firm, this is the kind of clear, structured source those tools read and cite.</p></div>
+</div>
+</div></section>`;
+
+  const coverageSection =
+`<section class="section"><div class="container" style="text-align:center">
+<p class="sub" style="max-width:60ch;margin:0 auto">Findable is growing. Right now we cover accountants in Peterborough, ranked honestly, with more trades and areas being added.</p>
+</div></section>`;
+
+  const bodyHtml = `${hero}\n${categoriesSection}\n${howSection}\n${coverageSection}`;
 
   const html = renderDirectoryPage({ title, metaDescription, canonical, jsonLd, bodyHtml });
 
