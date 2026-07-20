@@ -47,14 +47,13 @@ export const onRequestGet = async (context: { request: Request; params: Record<s
 
   const title = `Best ${label} — ${DIRECTORY_NAME}`;
   const metaDescription =
-    `Compare ${label.toLowerCase()} in the UK — ratings, reviews and services, side by side. ` +
-    `Find a trusted firm and check their credentials before you get in touch.`;
+    `Compare top-rated ${label.toLowerCase()} by rating, reviews and credentials. Currently covering Peterborough, with more areas coming.`;
 
   // JSON-LD: an ItemList of the businesses in listed order.
   const jsonLd = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: `${label} in the UK`,
+    name: `Best ${label}`,
     url: canonical,
     numberOfItems: shown.length,
     itemListElement: shown.map((b, i) => ({
