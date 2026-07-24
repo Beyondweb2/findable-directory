@@ -3,20 +3,19 @@
 // Routing: the filename `sitemap.xml.ts` maps to the exact path /sitemap.xml (Pages strips the .ts,
 // keeps .xml). No static /sitemap.xml exists in this project, so nothing shadows it.
 //
-// Lists: /directory, every /directory/<niche>, every /directory/<niche>/<area>, every
-// /directory/<niche>/<slug>, and every published /r/<slug> business report. Directory URLs use the
-// REQUEST origin (correct on .pages.dev now and findabledirectory.com later); /r/ report URLs use the
-// reports origin (a DIFFERENT domain). Reads with the anon key + Supabase REST — SAME env access
-// (context.env) and fetch pattern as functions/directory/index.ts, and selects ONLY anon-granted
-// columns (niche/area/name; slug) — no lastmod, so no ungranted-column 403.
+// Lists: /directory, every /directory/<niche>, every /directory/<niche>/<area>, and every
+// /directory/<niche>/<slug>. All URLs use the REQUEST origin (correct on .pages.dev now and
+// findabledirectory.com later) so the directory advertises ONLY its own /directory/ pages — the
+// external yoursites.uk /r/ business-report URLs are no longer listed. Reads with the anon key +
+// Supabase REST — SAME env access (context.env) and fetch pattern as functions/directory/index.ts,
+// and selects ONLY anon-granted columns (niche/area/name) — no lastmod, so no ungranted-column 403.
 
-import { anonHeaders, reportsOrigin, slugify, escHtml, type Env } from "./directory/_shared";
+import { anonHeaders, slugify, escHtml, type Env } from "./directory/_shared";
 
 // PostgREST page cap. Fine for the current dataset; past this you'd paginate or emit a sitemap index.
 const ROW_LIMIT = 10000;
 
 interface BizRow { niche?: string; area?: string; name?: string }
-interface ReportRow { slug?: string }
 
 /** Fetch a JSON array via anon REST. On a non-ok response (e.g. a 403 permission-denied for a column)
  *  or a thrown error, LOG it and return [] — so a failure surfaces in logs instead of silently
@@ -46,12 +45,8 @@ export const onRequestGet = async (context: { request: Request; env: Env }) => {
     `${env.SUPABASE_URL}/rest/v1/directory_businesses?select=niche,area,name&limit=${ROW_LIMIT}`,
     env, "directory_businesses",
   );
-  const reports = await fetchRows<ReportRow>(
-    `${env.SUPABASE_URL}/rest/v1/business_reports?status=eq.published&select=slug&limit=${ROW_LIMIT}`,
-    env, "business_reports",
-  );
 
-  // Build a de-duplicated, ordered set of loc URLs: root → categories → areas → businesses → reports.
+  // Build a de-duplicated, ordered set of loc URLs: root → categories → areas → businesses.
   const locs = new Set<string>();
   locs.add(`${origin}/directory`);
 
@@ -74,14 +69,6 @@ export const onRequestGet = async (context: { request: Request; env: Env }) => {
     locs.add(`${origin}/directory/${encodeURIComponent(niche)}/${encodeURIComponent(area)}`);
   }
   for (const loc of bizLocs) locs.add(loc);
-
-  // Published /r/ reports — ABSOLUTE to the reports origin (a different domain). NOTE: cross-domain
-  // sitemap entries are advisory; search engines primarily honour URLs under the sitemap's own host.
-  const rOrigin = reportsOrigin(env);
-  for (const rep of reports) {
-    const slug = (rep.slug || "").trim();
-    if (slug) locs.add(`${rOrigin}/r/${encodeURIComponent(slug)}`);
-  }
 
   const body =
     `<?xml version="1.0" encoding="UTF-8"?>\n` +

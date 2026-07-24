@@ -11,7 +11,9 @@
 
 // Cloudflare Pages environment bindings (set in the Pages project → Settings → Environment variables,
 // or a local .dev.vars). SUPABASE_* point at the SAME Supabase project as LeadFinderOS. REPORTS_ORIGIN
-// is where the /r/ audit-report pages live (yoursites.uk) — a DIFFERENT domain to this directory.
+// is where the /r/ business-profile report pages live (yoursites.uk) — a DIFFERENT domain. (The
+// AI-visibility AUDIT reports are a separate /a/ route; the directory now links neither — it links
+// its OWN /directory/ profiles.)
 export interface Env {
   SUPABASE_URL: string;
   SUPABASE_ANON_KEY: string;
@@ -23,8 +25,9 @@ export function anonHeaders(env: Env): Record<string, string> {
   return { apikey: env.SUPABASE_ANON_KEY, Authorization: `Bearer ${env.SUPABASE_ANON_KEY}` };
 }
 
-/** Where the public audit-report pages (/r/<slug>) are served — LeadFinderOS on yoursites.uk by
- *  default. Absolute, because the directory is a SEPARATE domain and can't link to /r/ relatively. */
+/** Where the public /r/<slug> business-profile report pages are served — LeadFinderOS on yoursites.uk.
+ *  (/a/<slug> is the SEPARATE AI-visibility audit route.) Currently unused: the directory links its
+ *  OWN /directory/ profiles now; kept for the REPORTS_ORIGIN env + any future cross-link. */
 export function reportsOrigin(env: Env): string {
   return (env.REPORTS_ORIGIN || "https://yoursites.uk").replace(/\/+$/, "");
 }
@@ -196,8 +199,9 @@ ${meta ? `<div class="rank-meta">${meta}</div>\n` : ""}<p class="rank-desc">${es
   );
 }
 
-export function renderFeaturedClient(reportsOriginUrl: string): string {
-  const url = `${reportsOriginUrl}/r/ablm-associates-5`;
+export function renderFeaturedClient(): string {
+  // Link the directory's OWN profile page (same site), not the external yoursites.uk/r/ report.
+  const url = "/directory/accountant/ablm-associates";
   return (
 `<section class="feat-client" aria-label="Featured firm">
 <div class="feat-media"><img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1200&q=80" alt="ABLM Associates" loading="lazy" width="1200" height="600"><span class="feat-tag">Featured</span></div>
@@ -205,7 +209,7 @@ export function renderFeaturedClient(reportsOriginUrl: string): string {
 <h2 class="feat-name">ABLM Associates</h2>
 <p class="feat-cred">UK-wide chartered certified accountants &middot; ACCA regulated &middot; Peterborough</p>
 <p class="feat-desc">ABLM Associates is a UK-wide firm of chartered certified accountants based in Peterborough, working with limited companies, small businesses and individuals on accounts, corporation tax, VAT, payroll and planning.</p>
-<a class="feat-cta" href="${escHtml(url)}" target="_blank" rel="noopener">View full profile &rarr;</a>
+<a class="feat-cta" href="${escHtml(url)}">View full profile &rarr;</a>
 </div>
 </section>`
   );
