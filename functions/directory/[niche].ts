@@ -7,7 +7,7 @@
 
 import {
   renderDirectoryPage, renderBreadcrumbs, escHtml, slugify, nicheLabel, nicheHeroImage, areaLabel,
-  renderRankedCard, renderFeaturedClient, anonHeaders, reportsOrigin, HERO_WAVE, DIRECTORY_NAME, type DirectoryBiz, type Env,
+  renderRankedCard, renderFeaturedClient, anonHeaders, HERO_WAVE, DIRECTORY_NAME, type DirectoryBiz, type Env,
 } from "./_shared";
 
 export const onRequestGet = async (context: { request: Request; params: Record<string, string>; env: Env }) => {
@@ -89,7 +89,7 @@ ${HERO_WAVE}
   // clients first, then rating, then reviews, so the rank number reflects the honest "best of" order.
   // Featured client block for the accountant niche.
   const cards = shown.map((b, i) => renderRankedCard(b, i, niche)).join("\n");
-  const featured = niche === "accountant" ? renderFeaturedClient(reportsOrigin(env)) : "";
+  const featured = niche === "accountant" ? renderFeaturedClient() : "";
 
   // "Browse by area" — local-intent links into /directory/<niche>/<area>. Only when areas exist.
   const areaSection = areas.length

@@ -9,7 +9,7 @@
 
 import {
   renderDirectoryPage, renderBreadcrumbs, escHtml, slugify, nicheLabel, nicheHeroImage, areaLabel,
-  renderRankedCard, renderFeaturedClient, ratingHtml, describeBusiness, anonHeaders, reportsOrigin, HERO_WAVE,
+  renderRankedCard, renderFeaturedClient, ratingHtml, describeBusiness, anonHeaders, HERO_WAVE,
   IMG_OFFICE, IMG_DESK, DIRECTORY_NAME, type DirectoryBiz, type Env,
 } from "../_shared";
 
@@ -49,7 +49,7 @@ export const onRequestGet = async (context: { request: Request; params: Record<s
   const areaSet = new Set(rows.map((b) => (b.area || "").trim().toLowerCase()).filter(Boolean));
   if (areaSet.has(segment)) {
     const inArea = rows.filter((b) => (b.area || "").trim().toLowerCase() === segment && (b.name || "").trim());
-    const featured = (niche === "accountant" && segment === "peterborough") ? renderFeaturedClient(reportsOrigin(env)) : "";
+    const featured = (niche === "accountant" && segment === "peterborough") ? renderFeaturedClient() : "";
     return renderAreaPage(origin, niche, segment, inArea, featured);
   }
 
@@ -62,22 +62,6 @@ export const onRequestGet = async (context: { request: Request; params: Record<s
   const label = nicheLabel(niche);
   const canonical = `${origin}/directory/${encodeURIComponent(niche)}/${slug}`;
   const description = (b.description || "").trim() || describeBusiness(b, niche);
-
-  // Client → their published business_reports profile (matched by lead_id). Best-effort; failure = no link.
-  let reportSlug = "";
-  if (b.is_client && b.lead_id) {
-    try {
-      const rr = await fetch(
-        `${env.SUPABASE_URL}/rest/v1/business_reports?lead_id=eq.${encodeURIComponent(b.lead_id)}` +
-        `&status=eq.published&select=slug&order=created_at.desc&limit=1`,
-        { headers: anonHeaders(env) },
-      );
-      if (rr.ok) {
-        const rows = await rr.json();
-        if (Array.isArray(rows) && rows[0]?.slug) reportSlug = String(rows[0].slug);
-      }
-    } catch { /* no report link */ }
-  }
 
   const title = `${name} — ${label} — ${DIRECTORY_NAME}`;
   const metaDescription = description.slice(0, 300);
@@ -130,11 +114,6 @@ export const onRequestGet = async (context: { request: Request; params: Record<s
   const website = (b.website || "").trim();
   if (website) napRows.push(`<div><strong>Website</strong> <a href="${escHtml(website)}" target="_blank" rel="nofollow noopener">${escHtml(website.replace(/^https?:\/\//i, ""))} &#8599;</a></div>`);
 
-  // The /r/ report pages live on a DIFFERENT domain (LeadFinderOS / yoursites.uk), so link ABSOLUTELY
-  // to the reports origin and open in a new tab — a relative /r/ would 404 on this directory domain.
-  const reportCta = reportSlug
-    ? `<a class="report-cta" href="${escHtml(`${reportsOrigin(env)}/r/${reportSlug}`)}" target="_blank" rel="noopener">View full profile &rarr;</a>` : "";
-
   const hero =
 `<section class="hero hero--img" style="background-image:url('${heroFor(slug)}')">
 <div class="container">
@@ -152,7 +131,6 @@ ${crumbs}
 <div class="biz-profile" style="margin-top:16px">
 <p class="biz-lead">${escHtml(description)}</p>
 ${napRows.length ? `<div class="biz-nap">${napRows.join("\n")}</div>` : ""}
-${reportCta ? `<div class="biz-report">${reportCta}<p class="note">This business is a verified ${DIRECTORY_NAME} client — see their full profile.</p></div>` : ""}
 <p class="biz-back"><a href="/directory/${encodeURIComponent(niche)}">&larr; Back to ${escHtml(label.toLowerCase())}</a></p>
 </div>
 </div>
