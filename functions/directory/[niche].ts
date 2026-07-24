@@ -47,7 +47,7 @@ export const onRequestGet = async (context: { request: Request; params: Record<s
 
   const title = `Best ${label} — ${DIRECTORY_NAME}`;
   const metaDescription =
-    `Compare top-rated ${label.toLowerCase()} by rating, reviews and credentials. Currently covering Peterborough, with more areas coming.`;
+    `Compare top-rated ${label.toLowerCase()} across the UK by rating, reviews and credentials.`;
 
   // JSON-LD: an ItemList of the businesses in listed order.
   const jsonLd = JSON.stringify({
@@ -80,7 +80,7 @@ export const onRequestGet = async (context: { request: Request; params: Record<s
 `<section class="hero hero--img" style="background-image:url('${nicheHeroImage(niche)}')">
 <div class="container">
 <h1>Best ${escHtml(label)}</h1>
-<p>Compare top-rated ${escHtml(label.toLowerCase())} by rating, reviews and credentials. Currently covering Peterborough, with more areas coming.</p>
+<p>Compare top-rated ${escHtml(label.toLowerCase())} across the UK by rating, reviews and credentials.</p>
 </div>
 ${HERO_WAVE}
 </section>`;
