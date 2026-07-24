@@ -202,6 +202,9 @@ ${meta ? `<div class="rank-meta">${meta}</div>\n` : ""}<p class="rank-desc">${es
 export function renderFeaturedClient(): string {
   // Link the directory's OWN profile page (same site), not the external yoursites.uk/r/ report.
   const url = "/directory/accountant/ablm-associates";
+  // ABLM's real Google Maps place page. NOTE: reviews link to the SAME place page (reviews are shown
+  // there) — a clean reviews-only URL isn't derivable from this Maps link (no ChIJ place_id / review slug).
+  const mapsUrl = "https://www.google.com/maps/place/ABLM+Associates/@52.5006531,0.4620824,8z/data=!3m1!4b1!4m6!3m5!1s0x210a670b1e5157a1:0x155f2580c56a7fba!8m2!3d52.5006531!4d0.4620824!16s%2Fg%2F11m6bc6dpb?hl=en-GB";
   return (
 `<section class="feat-client" aria-label="Featured firm">
 <div class="feat-media"><img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1200&q=80" alt="ABLM Associates" loading="lazy" width="1200" height="600"><span class="feat-tag">Featured</span></div>
@@ -209,7 +212,11 @@ export function renderFeaturedClient(): string {
 <h2 class="feat-name">ABLM Associates</h2>
 <p class="feat-cred">UK-wide chartered certified accountants &middot; ACCA regulated &middot; Peterborough</p>
 <p class="feat-desc">ABLM Associates is a UK-wide firm of chartered certified accountants based in Peterborough, working with limited companies, small businesses and individuals on accounts, corporation tax, VAT, payroll and planning.</p>
+<div class="feat-links">
 <a class="feat-cta" href="${escHtml(url)}">View full profile &rarr;</a>
+<a href="${escHtml(mapsUrl)}" target="_blank" rel="noopener">View on Google Maps &#8599;</a>
+<a href="${escHtml(mapsUrl)}" target="_blank" rel="noopener">Read reviews &#8599;</a>
+</div>
 </div>
 </section>`
   );
@@ -296,7 +303,9 @@ main{display:block;padding-bottom:56px;flex:1 0 auto}
 .feat-name{font-weight:900;font-size:clamp(24px,3.4vw,32px);letter-spacing:-.02em;color:var(--ink);margin:0}
 .feat-cred{font-size:15px;font-weight:700;color:var(--blue);margin:8px 0 0}
 .feat-desc{font-size:16px;color:var(--body);line-height:1.6;margin:14px 0 0;max-width:72ch}
-.feat-cta{display:inline-block;margin-top:18px;font-size:15px;font-weight:800;color:var(--blue)}
+.feat-cta{display:inline-block;font-size:15px;font-weight:800;color:var(--blue)}
+.feat-links{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin-top:16px;font-size:15px;font-weight:700}
+.feat-links a{color:var(--blue)}
 @media(max-width:560px){.feat-media{height:200px}.feat-body{padding:20px 18px 22px}}
 /* business profile page */
 .biz-hero-head{min-height:22px;margin-bottom:6px}
