@@ -118,7 +118,7 @@ ${cards}
 
   const coverageSection =
 `<section class="section"><div class="container" style="text-align:center">
-<p class="sub" style="max-width:60ch;margin:0 auto">Findable is growing. Right now we cover accountants in Peterborough, ranked honestly, with more trades and areas being added.</p>
+<p class="sub" style="max-width:60ch;margin:0 auto">Findable is growing. Right now we cover accountants, ranked honestly, with more trades and areas being added.</p>
 </div></section>`;
 
   const bodyHtml = `${hero}\n${categoriesSection}\n${howSection}\n${coverageSection}`;
