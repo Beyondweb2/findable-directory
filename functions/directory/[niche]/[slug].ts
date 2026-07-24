@@ -49,7 +49,9 @@ export const onRequestGet = async (context: { request: Request; params: Record<s
   const areaSet = new Set(rows.map((b) => (b.area || "").trim().toLowerCase()).filter(Boolean));
   if (areaSet.has(segment)) {
     const inArea = rows.filter((b) => (b.area || "").trim().toLowerCase() === segment && (b.name || "").trim());
-    const featured = (niche === "accountant" && segment === "peterborough") ? renderFeaturedClient() : "";
+    // ABLM (the featured client) is a Wisbech target as well as Peterborough — show its featured block
+    // (with the Google Maps + reviews links) on both area pages. Same block reused as-is.
+    const featured = (niche === "accountant" && (segment === "peterborough" || segment === "wisbech")) ? renderFeaturedClient() : "";
     return renderAreaPage(origin, niche, segment, inArea, featured);
   }
 
